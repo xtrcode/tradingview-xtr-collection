@@ -1,0 +1,27 @@
+// HOW TO USE?
+// Implement longSingal() and shortSignal() to return true if your entered a long/short position right away or
+// if their is still one open.
+// Example Image: https://image.xtracode.ws/i/PD0NGANmrwWO7kxj/662648a0b71c27f5b62ad0446604ab14
+// Green line => Highest price since last entry, Red line => Trailing Stop
+
+// ## Trailing Stop configuration
+trailStopPercentage = input(5,"Trailing Stop %")/100
+
+// ## Correction of the exit order if the current candle high is above our position entry (trailing stop simulation)
+// condition is only true if we're already LONG and the current candle high is above our avg entry
+condition = longSignal() and (high > strategy.position_avg_price)
+
+// ## Save the highest price since our last entry position
+highest = na
+highest := (condition) ? max(max(nz(highest[1]), strategy.position_avg_price), high) : (shortSignal()) ? strategy.position_avg_price : highest[1]
+trailingStopPrice = highest - (highest * trailStopPercentage)
+
+// ## Plot highest price since last entry
+plot(trailingStopPrice, title="Trailing Stop Price", color=yellow)
+// ## Plot Trailing Stop line
+plot(highest, title="Highes Price Since Going Long", color=green)
+
+// ## Cancel all exit orders, if we're LONG and the current candle high is the highest sinc our last long entry
+strategy.cancel_all(condition)
+// ## Place a new exit order -trailStopPercentage under the high
+strategy.exit("Trailing Stop", "Long", stop = trailingStopPrice, when = condition)
