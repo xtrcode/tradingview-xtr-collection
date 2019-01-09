@@ -7,7 +7,7 @@ useFilter   = input(title = "Use Filter?", defval = true, type = bool)
 maFilter    = input(title = "Filter Type", defval = "MA", options = ["MA", "EMA", "WMA", "RMA", "VWMA"])
 maFilterVal = input(title = "Filter Value (Period of MA)", defval = 100, minval = 1,  maxval = 1000)
 
-// ## Filter function to calulate which at price the current HIGH needs to cross
+// ## Filter function to calulate at which price the current HIGH needs to cross
 // before the filter allows you to trade. 
 // Therefore with MA(close, 100) configured the current HIGH needs to be above the MA
 // to allow long positions, vice versa.
