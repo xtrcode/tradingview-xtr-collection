@@ -1,0 +1,53 @@
+// HOW TO USE?
+// Add "and filerLong(useFilter)" to your long condition
+// Add "and filterShort(useFilter)" to your short condition
+
+// ## Filter input configuration
+useFilter   = input(title = "Use Filter?", defval = true, type = bool)
+maFilter    = input(title = "Filter Type", defval = "MA", options = ["MA", "EMA", "WMA", "RMA", "VWMA"])
+maFilterVal = input(title = "Filter Value (Period of MA)", defval = 100, minval = 1,  maxval = 1000)
+
+// ## Filter function to calulate which at price the current HIGH needs to cross
+// before the filter allows you to trade. 
+// Therefore with MA(close, 100) configured the current HIGH needs to be above the MA
+// to allow long positions, vice versa.
+filter(enable) =>
+    if enable
+        _close = na
+        if maFilter == "MA"
+            _close := sma(close, maFilterVal)
+            
+        if maFilter == "EMA"
+            _close := ema(close, maFilterVal)
+                
+        if maFilter == "WMA"
+            _close := wma(close, maFilterVal)
+                
+        if maFilter == "RMA"
+            _close := rma(close, maFilterVal)
+                
+        if maFilter == "VWMA"
+            _close := vwma(close, maFilterVal)
+        _close
+    else
+        close
+
+// ## Long positions allowed?
+filterLong(enable) =>
+    if not enable
+        true
+    else
+        (high >= filter(enable)) ? true : false
+        
+// ## Short positions allowed?
+filterShort(enable) =>
+    if not enable
+        true
+    else
+        (high <= filter(enable)) ? true : false
+
+// ## Set background color to green if long allowed, red otherwise
+bgcolor(filterLong(useFilter) ? green : red)
+
+// ## Plot filter value (MA, EMA, etc.)
+plot(filter(useFilter), color = green, title ="Filter Plot")
